@@ -1,4 +1,5 @@
 # .gitignore
 Data/        
 *.txt          
-.idea/        
+.idea/ 
+testing/       
