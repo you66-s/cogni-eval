@@ -3,3 +3,5 @@ Data/
 *.txt          
 .idea/ 
 testing/       
+cognitive_eval.egg-info/
+__pycache__
