@@ -2,6 +2,7 @@
 Data/        
 *.txt          
 .idea/ 
-testing/       
+testing/    
 cognitive_eval.egg-info/
-__pycache__
+**/__pycache__/
+*.py[cod]
