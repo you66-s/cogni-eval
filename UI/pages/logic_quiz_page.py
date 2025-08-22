@@ -23,19 +23,17 @@ if "logic_quiz" not in st.session_state:
     st.session_state.logic_quiz = {
         "questions_index": questions_index,
         "user_answer": [None] * 5,
-        "current_q": 0  # tracks which question we are on
+        "current_q": 0
     }
 
 quiz = st.session_state.logic_quiz
 current = quiz["current_q"]
 
-# Stop if quiz finished
 if current >= len(quiz["questions_index"]):
     st.success("Quiz finished 🎉")
     time.sleep(5)
     st.switch_page("pages/Reasoning_quiz_page.py")
 else:
-    # Get current question
     question_index = quiz["questions_index"][current]
 
     st.write(f"<h3>Question {current + 1}</h3>", unsafe_allow_html=True)
@@ -43,7 +41,6 @@ else:
 
     choices, labels = mcq_choices_parser(logic_dim['choices'].iloc[question_index])
 
-    # Use the actual question_index in key → unique per question
     selected = st.radio(
         "Select the answer",
         options=choices,
@@ -51,7 +48,6 @@ else:
     )
 
     if st.button("Next"):
-        # Save answer
         quiz["user_answer"][current] = choices.index(selected) if selected else None
         quiz["current_q"] += 1
         st.rerun()
