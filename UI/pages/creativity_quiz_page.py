@@ -4,7 +4,7 @@ import random
 import time
 
 # Dataset import
-dataset = pd.read_csv('Data/final_dataset/final_dataset.csv')
+dataset = pd.read_csv('../Data/final_dataset/final_dataset.csv')
 creativity_dim = dataset[dataset['dimension'] == "Creativity"]
 dataset_length = len(creativity_dim)
 st.write("<h1 style='text-align: center;'>Creativity Section</h1>", unsafe_allow_html=True)

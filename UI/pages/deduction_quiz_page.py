@@ -4,7 +4,7 @@ import random
 import time
 
 # Dataset import
-dataset = pd.read_csv('Data/final_dataset/final_dataset.csv')
+dataset = pd.read_csv('../Data/final_dataset/final_dataset.csv')
 deduction_dim = dataset[dataset['dimension'] == "Deduction & Induction"]
 dataset_length = len(deduction_dim)
 st.write("<h1 style='text-align: center;'>Deduction & Induction Section</h1>", unsafe_allow_html=True)

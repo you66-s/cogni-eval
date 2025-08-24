@@ -11,7 +11,7 @@ def mcq_choices_parser(choices) -> list:
     return choices, labels
 
 # Dataset
-dataset = pd.read_csv('Data/final_dataset/final_dataset.csv')
+dataset = pd.read_csv('../Data/final_dataset/final_dataset.csv')
 reasoning_dim = dataset[dataset['dimension'] == "Reasoning"]
 dataset_length = len(reasoning_dim)
 
