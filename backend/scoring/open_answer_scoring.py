@@ -34,7 +34,7 @@ class OpenEndedScoring:
             self.__similarity.append(model.similarity(self.__embeddings[0], self.__embeddings[1]))
         return self.__similarity
     
-    def final_point_calculator(self, threshold=0.75):
+    def final_point_calculator(self, threshold=0.8):
         points = 0
         for similarity in range(len(self.__similarity)):
             if self.__similarity[similarity][0][0] >= threshold:
