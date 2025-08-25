@@ -25,10 +25,15 @@ def quiz_generation_and_scoring(current, quiz, dataset: pd.DataFrame, qst_type: 
     
     # Show current question
     if current >= len(quiz["questions_index"]):
+        #DEBUG
         print(f"{dimension} section answers")
         print(f"user answers {quiz["score_user_answer"]}")
         print(f"correct answers {quiz["score_crr_answer"]}")
-        scoring = ScoringEngine("open-ended", quiz["score_user_answer"], quiz["score_crr_answer"])
+        #------------------END OF DEBUG-----------------------------
+        if qst_type == "open-ended":
+            scoring = ScoringEngine("open-ended", quiz["score_user_answer"], quiz["score_crr_answer"])
+        elif qst_type == "MCQ":
+            scoring = ScoringEngine("MCQ", quiz["score_user_answer"], quiz["score_crr_answer"])
         st.session_state['score'].append({dimension: scoring.evaluate_quiz()})
 
         # Clearing the scoring arrays for the next quiz
@@ -56,7 +61,7 @@ def quiz_generation_and_scoring(current, quiz, dataset: pd.DataFrame, qst_type: 
             if st.button("Next"):
                 # Save answer
                 quiz["user_answer"][current] = user_answer
-                quiz["score_user_answer"].append(user_answer)
+                quiz["score_user_answer"].append(quiz["user_answer"][current])
                 quiz["current_q"] += 1
                 st.rerun()
         elif qst_type == "MCQ":
@@ -71,5 +76,6 @@ def quiz_generation_and_scoring(current, quiz, dataset: pd.DataFrame, qst_type: 
             if st.button("Next"):
                 # Save answer
                 quiz["user_answer"][current] = choices.index(selected) if selected else None
+                quiz["score_user_answer"].append(quiz["user_answer"][current])
                 quiz["current_q"] += 1
                 st.rerun()
