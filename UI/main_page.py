@@ -9,5 +9,7 @@ start_test_btn = st.button("Start the test")
 if start_test_btn:
     if "starting_test" not in st.session_state:
         st.session_state["starting_test"] = True
+if 'score' not in st.session_state:
+    st.session_state['score'] = []
 if start_test_btn:
     st.switch_page("pages/creativity_quiz_page.py")
