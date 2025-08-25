@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import random
-import time
+from backend.utils.functions import quiz_generation_and_scoring
 
 # Dataset import
 dataset = pd.read_csv('../Data/final_dataset/final_dataset.csv')
@@ -21,25 +21,4 @@ quiz = st.session_state.techincal_quiz
 current = quiz["current_q"]
 
 # Show current question
-if current >= len(quiz["questions_index"]):
-    st.success("Quiz finished 🎉")
-    time.sleep(5)
-    st.switch_page("pages/quiz_results.py")
-else:
-    # Get current question
-    question_index = quiz["questions_index"][current]
-
-    st.write(f"<h3>Question {current + 1}</h3>", unsafe_allow_html=True)
-    st.write(technical_quiz['question'].iloc[question_index])
-
-    user_answer = st.text_area(
-        "Write your answer here:",
-        key=f"t_q{current}",
-        value=quiz["user_answer"][current]
-    )
-
-    if st.button("Next"):
-        # Save answer
-        quiz["user_answer"][current] = user_answer
-        quiz["current_q"] += 1
-        st.rerun()
+quiz_generation_and_scoring(current, quiz, technical_quiz, technical_quiz["question_type"].unique()[0], "pages/quiz_results.py", technical_quiz["dimension"].unique()[0])

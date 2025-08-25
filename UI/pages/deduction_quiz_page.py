@@ -1,8 +1,7 @@
 import streamlit as st
 import pandas as pd
 import random
-import time
-
+from backend.utils.functions import quiz_generation_and_scoring
 # Dataset import
 dataset = pd.read_csv('../Data/final_dataset/final_dataset.csv')
 deduction_dim = dataset[dataset['dimension'] == "Deduction & Induction"]
@@ -20,26 +19,4 @@ if "deduction_quiz" not in st.session_state:
 quiz = st.session_state.deduction_quiz
 current = quiz["current_q"]
 
-# Show current question
-if current >= len(quiz["questions_index"]):
-    st.success("Quiz finished 🎉")
-    time.sleep(5)
-    st.switch_page("pages/logic_quiz_page.py")
-else:
-    # Get current question
-    question_index = quiz["questions_index"][current]
-
-    st.write(f"<h3>Question {current + 1}</h3>", unsafe_allow_html=True)
-    st.write(deduction_dim['question'].iloc[question_index])
-
-    user_answer = st.radio(
-        "chose your answer here:",
-        options=eval(deduction_dim['choices'].iloc[question_index]),
-        key=f"d_q{current}"
-    )
-
-    if st.button("Next"):
-        # Save answer
-        quiz["user_answer"][current] = user_answer
-        quiz["current_q"] += 1
-        st.rerun()
+quiz_generation_and_scoring(current, quiz, deduction_dim, deduction_dim["question_type"].unique()[0], "pages/logic_quiz_page.py", deduction_dim["dimension"].unique()[0])

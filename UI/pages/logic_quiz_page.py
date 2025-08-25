@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import random
 import numpy as np
-import time
+from backend.utils.functions import quiz_generation_and_scoring
 
 def mcq_choices_parser(choices) -> list:
     choices_dict = eval(choices, {"array": np.array})
@@ -29,25 +29,4 @@ if "logic_quiz" not in st.session_state:
 quiz = st.session_state.logic_quiz
 current = quiz["current_q"]
 
-if current >= len(quiz["questions_index"]):
-    st.success("Quiz finished 🎉")
-    time.sleep(5)
-    st.switch_page("pages/Reasoning_quiz_page.py")
-else:
-    question_index = quiz["questions_index"][current]
-
-    st.write(f"<h3>Question {current + 1}</h3>", unsafe_allow_html=True)
-    st.write(logic_dim['question'].iloc[question_index])
-
-    choices, labels = mcq_choices_parser(logic_dim['choices'].iloc[question_index])
-
-    selected = st.radio(
-        "Select the answer",
-        options=choices,
-        key=f"qst_{question_index}"
-    )
-
-    if st.button("Next"):
-        quiz["user_answer"][current] = choices.index(selected) if selected else None
-        quiz["current_q"] += 1
-        st.rerun()
+quiz_generation_and_scoring(current, quiz, logic_dim, logic_dim["question_type"].unique()[0], "pages/Reasoning_quiz_page.py", logic_dim["dimension"].unique()[0])
