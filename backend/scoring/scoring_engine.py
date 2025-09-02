@@ -1,9 +1,8 @@
 from backend.scoring.open_answer_scoring import OpenEndedScoring
 from backend.scoring.mcq_scoring import MCQScoring
-import pandas as pd
 
 class ScoringEngine:
-    def __init__(self, question_type, user_answer: list, correct_answer: list):
+    def __init__(self, question_type, user_answer, correct_answer):
         self.__question_type = question_type
         self.__user_answer = user_answer
         self.__correct_answer = correct_answer
