@@ -7,9 +7,8 @@ load_dotenv()
 
 def llms_question_generation(dimension):
     client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-
     prompt = f"""
-    You are an assistant for generating questions in a cognitive adaptive testing system.
+    You are an assistant for generating questions in a cognitive adaptive testing system for the computer sciences field.
 
     Task:
     - Generate 1 question that assesses the dimension: "{dimension}".
@@ -18,28 +17,18 @@ def llms_question_generation(dimension):
         - easy: simple recall or straightforward reasoning.
         - medium: requires multi-step reasoning or moderate creativity.
         - hard: abstract reasoning, multiple constraints, or advanced domain knowledge.
-    Example 1 (Open-ended):
+    Open-ended Example:
     {{
-    "question": "You spilled red wine on the hotel carpet and want to clean it up before the housekeeping staff reports this. Tools available: a bottle opener, a plastic cup, a toothbrush, a bottle of mineral water that is sealed shut, a pack of sugar, a white bath towel, a bar of soap, a hair dryer. How do you clean up the wine stain using only these items?",
-    "ref_answer": "Step1: Open the bottle of mineral water with the bottle opener. Step2: Wet the white bath towel with your mineral water. Step3: Dab, don't rub, the wine stain with your wet towel. Step4: Use soap and a bit of water to form soap suds and apply to the stain.Step5: Scrub gently with the toothbrush.Step6: Rinse with more mineral water.Step7: Dry using the hairdryer."
+    "question": "Explain data abstraction in programming.",
+    "ref_answer": "Data abstraction is a technique used in programming to separate implementation details of a data type from its interface, allowing changes in implementation without affecting code that uses it. It is achieved through abstract data types, classes, or interfaces and helps reduce software complexity by promoting modularity and flexibility."
     }}
-    Example 2 (Open-ended):
+
+    MCQ Example:
     {{
-    "question": "Explain data abstraction.",
-    "ref_answer": "Data abstraction is a technique used in computer programming to separate the implementation details of a data type from its interface, allowing the implementation to be changed without affecting the code that uses it. This is often achieved through the use of abstract data types (ADTs), which are defined by the operations they support rather than their specific implementation, or through the use of interfaces and classes in object-oriented programming languages. Data abstraction helps to reduce the complexity of software systems by allowing code to be written in a modular and flexible way and by hiding the underlying details of data types from the user."
-    }}
-    Example 3 (MCQ):
-    {{
-    "question": "A new commercial radio station in Greenfield plans to play songs that were popular hits fifteen to twenty-five years ago. It hopes in this way to attract an audience made up mainly of people between thirty-five and forty-five years old and thereby to have a strong market appeal to advertisers. Each of the following, if true, strengthens the prospects that the radio station's plan will succeed EXCEPT:",
-    "choices": ['The thirty-five- to forty-five-year-old age group is one in which people tend to have comparatively high levels of income and are involved in making household purchases.', 'People in the thirty-five- to forty-five-year-old age group are more likely to listen to the radio for news than for music.', 'In a number of cities demographically similar to Greenfield, radio stations that play recordings of popular music from fifteen to twenty-five years ago have succeeded commercially.', 'Among the few radio stations in the Greenfield area, there is none that plays music from this particular period for more than a few hours per week.'],
-    "correcte answer index": 1
-    }}
-    Example 4 (MCQ):
-    {{
-    "question": "Clearly, fitness consultants who smoke cigarettes cannot help their clients become healthier. If they do not care about their own health, they cannot really care for their clients' health, and if they do not care for their clients' health, they cannot help them to become healthier. The conclusion follows logically if which one of the following is assumed?",
-    "choices": ['Anyone who does not care for his or her own health cannot help others become healthier.', 'Anyone who cares about his or her own health does not smoke.', 'Anyone who cares about the health of others can help others become healthier.', 'Anyone who does not care for the health of others cannot help them become healthier.'],
-    "correcte answer index": 1
-    }}
+    "question": "Which of the following sorting algorithms has the best average-case time complexity?",
+    "choices": ["Bubble Sort", "Insertion Sort", "Merge Sort", "Selection Sort"],
+    "correct_answer_index": 2
+    }}  
     Requirements:
     1. If the type is "open-ended", create a question that encourages detailed {dimension}.    
     2. If the type is "MCQ", generate 1 question with 4 answer choices (labeled A–D). Only one must be correct.  
@@ -72,11 +61,14 @@ def llms_question_generation(dimension):
                 "You are an assistant for generating questions in a cognitive adaptive testing system."
             ),
         ),
-        contents=f"{prompt}")
-
+        contents=f"{prompt}") 
     return response.model_dump_json()
+
+
 def question_generated_parser(generated_question):
     parsed_question = json.loads(generated_question)
+    raw_text = parsed_question["candidates"][0]["content"]["parts"][0]["text"]
+    parsed_question = json.loads(raw_text)
     question_type = parsed_question["question_type"]
     question = parsed_question["question"]
 
@@ -86,11 +78,3 @@ def question_generated_parser(generated_question):
         choices = parsed_question["choices"]
         correct_answer_index = parsed_question["correct_answer_index"]
     return {"question_type": question_type, "question": question, "ref_answer": reference_answer} if question_type == "open-ended" else {"question_type": question_type, "question": question, "choices": choices, "correct_answer_index": correct_answer_index}
-#-------------------------Testing the function-------------------------
-questions = llms_question_generation("computer science")
-generated_json = json.loads(questions)
-generated_question = generated_json["candidates"][0]["content"]["parts"][0]["text"]
-
-
-print("-------------------Parsed Generated Questions------------------")
-print(question_generated_parser(generated_question))
