@@ -13,7 +13,7 @@ model = SentenceTransformer("gtr-t5-base")
 
 #class definition
 class OpenEndedScoring:
-    def __init__(self, user_answers: list, ref_answers: list):
+    def __init__(self, user_answers, ref_answers):
         self.__user_answers = user_answers
         self.__ref_answers = ref_answers
         self.__similarity = []
@@ -27,16 +27,13 @@ class OpenEndedScoring:
         return ' '.join(words)
     
     def calculate_similarity(self) -> list:
-        for i in range(len(self.__user_answers)):
-            self.__user_answer = self.text_processing(text=self.__user_answers[i])
-            self.__ref_answer = self.text_processing(text=self.__ref_answers[i])
-            self.__embeddings = model.encode([self.__user_answer, self.__ref_answer], convert_to_tensor=True)
-            self.__similarity.append(model.similarity(self.__embeddings[0], self.__embeddings[1]))
+        self.__user_answer = self.text_processing(text=self.__user_answers)
+        self.__ref_answer = self.text_processing(text=self.__ref_answers)
+        self.__embeddings = model.encode([self.__user_answer, self.__ref_answer], convert_to_tensor=True)
+        self.__similarity.append(model.similarity(self.__embeddings[0], self.__embeddings[1]))
         return self.__similarity
     
     def final_point_calculator(self, threshold=0.7):
-        points = 0
-        for similarity in range(len(self.__similarity)):
-            if self.__similarity[similarity][0][0] >= threshold:
-                points += 1
-        return points
+        if self.__similarity[0][0] >= threshold:
+                return 1
+        return 0
