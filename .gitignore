@@ -6,3 +6,4 @@ testing/
 cognitive_eval.egg-info/
 **/__pycache__/
 *.py[cod]
+.env
