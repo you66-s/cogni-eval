@@ -7,3 +7,5 @@ cognitive_eval.egg-info/
 **/__pycache__/
 *.py[cod]
 .env
+mlruns/
+saved_models/
