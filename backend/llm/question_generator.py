@@ -1,17 +1,20 @@
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
-import json
-import os
+import os, re, json
 load_dotenv()
 
-def llms_question_generation(dimension):
+def llms_question_generation(dimension, cv):
     client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
     prompt = f"""
     You are an assistant for generating questions in a cognitive adaptive testing system for the computer sciences field.
 
     Task:
-    - Generate 1 question that assesses the dimension: "{dimension}".
+    - Generate 5 question that assesses the dimension: "{dimension}".
+    - Candidate CV information (JSON): {cv}
+    - Questions should be adapted to the candidate’s CV information when possible:
+        * Use the candidate’s skills, education, or experiences to create personalized questions.
+        * If a skill/experience is missing but relevant to the dimension, generate a question that tests this gap.
     - The questions types are open-ended or MCQ.
     - The difficulty level is variable between:
         - easy: simple recall or straightforward reasoning.
@@ -53,28 +56,45 @@ def llms_question_generation(dimension):
     "correct_answer_index": integer
     }} 
     """
-
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        config=types.GenerateContentConfig(
-            system_instruction=(
-                "You are an assistant for generating questions in a cognitive adaptive testing system."
+    try:        
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            config=types.GenerateContentConfig(
+                system_instruction=(
+                    "You are an assistant for generating questions in a cognitive adaptive testing system."
+                ),
             ),
-        ),
-        contents=f"{prompt}") 
-    return response.model_dump_json()
+            contents=f"{prompt}") 
+        return response.model_dump_json()
+    except Exception as e:
+        return e
+    
 
-
-def question_generated_parser(generated_question):
-    parsed_question = json.loads(generated_question)
-    raw_text = parsed_question["candidates"][0]["content"]["parts"][0]["text"]
-    parsed_question = json.loads(raw_text)
-    question_type = parsed_question["question_type"]
-    question = parsed_question["question"]
-
-    if parsed_question["question_type"] == "open-ended":
-        reference_answer = parsed_question["ref_answer"]
-    elif parsed_question["question_type"] == "MCQ":
-        choices = parsed_question["choices"]
-        correct_answer_index = parsed_question["correct_answer_index"]
-    return {"question_type": question_type, "question": question, "ref_answer": reference_answer} if question_type == "open-ended" else {"question_type": question_type, "question": question, "choices": choices, "correct_answer_index": correct_answer_index}
+# new question generation function
+def questions_generated_parser(generated_questions):
+    parsed_response = json.loads(generated_questions)
+    raw_text = parsed_response["candidates"][0]["content"]["parts"][0]["text"]
+    raw_text = re.sub(r'^```json\n|```$', '', raw_text, flags=re.MULTILINE).strip()
+    try:
+        questions_list = json.loads(raw_text)  
+        parsed_questions = []
+        for q in questions_list:
+            question_type = q["question_type"]
+            question = q["question"]
+            if question_type == "open-ended":
+                parsed_questions.append({
+                    "question_type": question_type,
+                    "question": question,
+                    "ref_answer": q["ref_answer"]
+                })
+            elif question_type == "MCQ":
+                parsed_questions.append({
+                    "question_type": question_type,
+                    "question": question,
+                    "choices": q["choices"],
+                    "correct_answer_index": q["correct_answer_index"]
+                })
+        return parsed_questions
+    except json.decoder.JSONDecodeError as e:
+        print("error while parsing questions")
+        return e
