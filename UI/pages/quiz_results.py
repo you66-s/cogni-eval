@@ -4,17 +4,6 @@ import altair as alt
 import plotly.graph_objects as go
 
 st.write("<h1 style='text-align: center;'>Your Cognitive Test Results</h1>", unsafe_allow_html=True)
-
-# Example: replace this with st.session_state['score'] in production
-# st.session_state['score'] = [
-#     {"Creativity": 80},
-#     {"General Culture": 65},
-#     {"Deduction & Induction": 50},
-#     {"Logical Thinking": 70},
-#     {"Reasoning": 55},
-#     {"Technical Thinking": 90}
-# ]
-
 scores = st.session_state.score
 
 if not scores:
